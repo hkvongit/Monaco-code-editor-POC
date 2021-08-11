@@ -3,51 +3,87 @@ import TreeMenu from "react-simple-tree-menu";
 import { ListGroupItem, Input, ListGroup } from "reactstrap";
 import CodeEditor from "./code-editor/CodeEditor";
 import sampleSJSONData from "./sample-files/sampleJSON.json";
-import "bootstrap/dist/css/bootstrap.min.css";
+import hash from 'object-hash'
+// import "bootstrap/dist/css/bootstrap.min.css";
+// import '../node_modules/react-simple-tree-menu/dist/main.css';
 import "./styles.css";
 
 const IndividualFile = (props) => {
-  return <CodeEditor initialData={props.initialData} />;
+  return <CodeEditor {...props} />;
 };
 
 // as an array
 const treeData = [
   {
     key: "first-level-node-1",
-    label: "Node 1 at the first level",
+    label: "Dev-folder",
     nodes: [
       {
-        key: "second-level-node-1",
-        label: "Node 1 at the second level",
-        nodes: [
-          {
-            key: "third-level-node-1",
-            label: "Last node of the branch",
-            nodes: [
-              {
-                key: "fourth-level-node-1",
-                label: "Node 1 at the forth level",
-                nodes: [
-                  {
-                    key: "third-level-node-1",
-                    label: "Last node of the branch",
-                    nodes: [] // you can remove the nodes property or leave it as an empty array
-                  }
-                ]
-              }
-            ] // you can remove the nodes property or leave it as an empty array
-          }
-        ]
+        key: "third-level-node-1",
+        label: "Sample.json",
+        nodes: [] // you can remove the nodes property or leave it as an empty array
       }
     ]
   },
   {
-    key: "first-level-node-2",
-    label: "Node 2 at the first level"
+    key: "script-node-1",
+    label: "scripts-folder",
+    nodes: [
+      {
+        key: "script-file-1",
+        label: "script.sh",
+        nodes: [] // you can remove the nodes property or leave it as an empty array
+      }
+    ]
   }
 ];
 
+const DEFAULT_PADDING = 8;
+const ICON_SIZE = 8;
+const LEVEL_SPACE = 8;
+
+const ToggleIcon = ({ on }) => <span style={{ marginRight: 8 }}>{on ? '-' : '+'}</span>;
+
 const TreeViewComp = () => {
+  const ListItem = ({
+    level = 0,
+    hasNodes,
+    isOpen,
+    label,
+    searchTerm,
+    openNodes,
+    toggleNode,
+    matchSearch,
+    focused,
+    ...props
+  }) => (
+    <ListGroupItem
+      {...props}
+      style={{
+        paddingLeft: DEFAULT_PADDING + ICON_SIZE + level * LEVEL_SPACE,
+        cursor: 'pointer',
+        boxShadow: focused ? '0px 0px 5px 0px #222' : 'none',
+        zIndex: focused ? 999 : 'unset',
+        position: 'relative',
+      }}
+    >
+      {hasNodes && (
+        <div
+          style={{ display: 'inline-block' }}
+          onClick={e => {
+            hasNodes && toggleNode && toggleNode();
+            e.stopPropagation();
+          }}
+        >
+          <ToggleIcon on={isOpen} />
+        </div>
+      )}
+      {label}
+    </ListGroupItem>
+  );
+
+
+
   return (
     <TreeMenu
       data={treeData}
@@ -70,8 +106,8 @@ const TreeViewComp = () => {
                 // You might need to wrap the third-party component to consume the props
                 // check the story as an example
                 // https://github.com/iannbing/react-simple-tree-menu/blob/master/stories/index.stories.js
-                <ListGroupItem {...props}> {props.label} </ListGroupItem>
-                // <ListItem {...props} />
+                // <ListGroupItem {...props}> {props.label} </ListGroupItem>
+                <ListItem {...props} />
               ))}
             </ListGroup>
           </>
@@ -85,12 +121,17 @@ export default function App() {
   const [tree, setTree] = useState([
     { title: "src/", children: [{ title: "index.js" }] }
   ]);
+  const initialHash = hash(sampleSJSONData)
+
   return (
     <div className="App">
       <h1>Code Editor</h1>
-      <IndividualFile initialData={JSON.stringify(sampleSJSONData)} />
-      {/* <CodeEditor /> */}
-      <TreeViewComp />
+      <div className="app-view">
+
+        <TreeViewComp />
+        <IndividualFile initialData={JSON.stringify(sampleSJSONData)} initialHash={initialHash}/>
+        {/* <CodeEditor /> */}
+      </div>
     </div>
   );
 }

@@ -1,4 +1,11 @@
 .App {
   font-family: sans-serif;
   text-align: center;
+
+}
+
+.app-view{
+  display:flex;
+  flex-direction: row;
+  width: 100%;
 }
